@@ -8,6 +8,9 @@ import org.springframework.context.annotation.Configuration;
 
 import dev.hdrelhaj.go_market.employee.Employee;
 import dev.hdrelhaj.go_market.employee.EmployeeRepository;
+import dev.hdrelhaj.go_market.order.Order;
+import dev.hdrelhaj.go_market.order.OrderRepository;
+import dev.hdrelhaj.go_market.order.Status;
 import dev.hdrelhaj.go_market.product.Product;
 import dev.hdrelhaj.go_market.product.ProductRepository;
 
@@ -17,11 +20,24 @@ class LoadDatabase {
   private static final Logger log = LoggerFactory.getLogger(LoadDatabase.class);
 
   @Bean
-  CommandLineRunner initDatabase(EmployeeRepository employeeRepository, ProductRepository productRepository) {
+  CommandLineRunner initDatabase(
+    EmployeeRepository employeeRepository,
+    ProductRepository productRepository,
+    OrderRepository orderRepository) {
 
     return args -> {
-      log.info("Preloading " + employeeRepository.save(new Employee("Bilbo Baggins", "burglar")));
-      log.info("Preloading " + employeeRepository.save(new Employee("Frodo Baggins", "thief")));
+
+      employeeRepository.save(new Employee("Bilbo", "Baggins", "burglar"));
+      employeeRepository.save(new Employee("Frodo", "Baggins", "thief"));
+
+      employeeRepository.findAll().forEach(employee -> log.info("Preloaded " + employee));
+
+      orderRepository.save(new Order("MacBook Pro", Status.COMPLETED));
+      orderRepository.save(new Order("iPhone", Status.IN_PROGRESS));
+
+      orderRepository.findAll().forEach(order -> {
+        log.info("Preloaded " + order);
+      });
 
       log.info("Preloading " + productRepository.save(
           Product.builder()
